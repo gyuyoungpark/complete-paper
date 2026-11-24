@@ -550,12 +550,27 @@ class VersionTool(unittest.TestCase):
                               capture_output=True, text=True, encoding="utf-8")
         self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
 
+    def use_version(self, version, changelog):
+        """Put the copied files at a known version with a changelog of the test's own, so that the test does not
+        depend on whether the repository's current version is released yet."""
+        import re
+        for rel, pattern, repl in ((".claude-plugin/plugin.json", r'"version": "[^"]*"', f'"version": "{version}"'),
+                                   ("skills/complete-paper/SKILL.md", r'(?m)^  version: "[^"]*"', f'  version: "{version}"')):
+            p = os.path.join(self.root, rel)
+            with open(p, encoding="utf-8") as f:
+                text = f.read()
+            with open(p, "w", encoding="utf-8") as f:
+                f.write(re.sub(pattern, lambda m: repl, text, count=1))
+        with open(os.path.join(self.root, "CHANGELOG.md"), "w", encoding="utf-8") as f:
+            f.write(changelog)
+
     def test_release_cycle(self):
+        self.use_version("1.2.3", "# Changelog\n\n## [Unreleased]\n\n### Added\n- A change.\n\n"
+                                  "## [1.2.2] - 2026-01-01\n\n### Added\n- An earlier change.\n")
         current = self.run_tool("show")[1].strip()
+        self.assertEqual(current, "1.2.3")
         major, minor, patch = (int(x) for x in current.split("."))
-        lower = f"{major}.{minor}.{patch - 1}" if patch else None
-        if lower:
-            self.assertEqual(self.run_tool("bump", lower)[0], 1)            # never downwards
+        self.assertEqual(self.run_tool("bump", f"{major}.{minor}.{patch - 1}")[0], 1)   # never downwards
         code, out = self.run_tool("bump", current, "--date", "2026-12-01")    # first release of the current version
         self.assertEqual(code, 0, out)
         self.assertEqual(self.run_tool("check", "v" + current)[0], 0)
