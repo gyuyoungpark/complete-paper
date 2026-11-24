@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-24
+
 ### Added
 - Entry skill `skills/complete-paper/SKILL.md` with the 20-part table, writing order, modes and state files.
 - First principles: (1) a paper written for people, with machine tone kept to a minimum; (2) data are final and blanks are never filled in, with every number traced to its source (ground rule 16); (3) no invented terms, and a new name only with the user's agreement. Ground rule 15: every sentence and paragraph in context, evaluated with a reverse outline, and no roadmap at the end of the introduction. Ground rule 10: earlier work is described by how this work differs from it, never as a fault.
