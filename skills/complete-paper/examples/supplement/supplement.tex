@@ -1,0 +1,113 @@
+% Invented example for the complete-paper skill (parts/supplement.md).
+% Same preamble, same notation and same citation forms as main.tex.
+\documentclass[10pt]{article}
+\usepackage[margin=22mm]{geometry}
+\input{shared}
+\externaldocument[M-]{main}
+\renewcommand{\thesection}{S\arabic{section}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand{\theequation}{S\arabic{equation}}
+
+\title{Supplemental Material for:\\ Field-free switching of a tilted kagome antiferromagnet}
+\author{A. Author \and B. Author}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent Contents: Sec.~\ref{sec:derivation}, derivation of the threshold, Eq.~(\ref{M-eq:threshold}) of
+the main text. Sec.~\ref{sec:robust}, robustness of the threshold. Sec.~\ref{sec:thermal}, effect of
+temperature. The data behind every figure, and all runs that are not shown, are in the data package
+named in the Data availability statement of the main text.
+
+\section{Derivation of the threshold current}
+\label{sec:derivation}
+
+This section derives Eq.~(\ref{M-eq:threshold}) of the main text. The result is Eq.~(\ref{eq:result}).
+A reader who accepts the torque balance of Eq.~(\ref{eq:balance}) can skip the rest.
+
+In the frame of the kagome plane the octupole moment is described by one angle $\varphi$, and its energy
+density is
+\begin{equation}
+  E(\varphi) = -\Ku \cos 2\varphi .
+  \label{eq:energy}
+\end{equation}
+The spin current is polarized along $y$. For a plane tilted by $\theta$ about $y$, the damping-like torque
+that drives $\varphi$ is the projection
+\begin{equation}
+  \tau_{\mathrm{DL}} = \frac{\hbar\,\tsh\, j}{2 e d}\,\sin\theta .
+  \label{eq:torque}
+\end{equation}
+The largest restoring torque of Eq.~(\ref{eq:energy}) is $2\Ku$. The moment leaves its energy minimum when
+\begin{equation}
+  \tau_{\mathrm{DL}} > 2\Ku \quad\text{at}\quad \varphi = \pi/4 ,
+  \label{eq:balance}
+\end{equation}
+and inserting Eq.~(\ref{eq:torque}) gives
+\begin{equation}
+  \jc(\theta) = \frac{4 e \Ku d}{\hbar\,\tsh}\,\frac{1}{\sin\theta} .
+  \label{eq:result}
+\end{equation}
+The main text absorbs the factor of two into the definition of the anisotropy constant used there.
+
+\section{Robustness of the threshold}
+\label{sec:robust}
+
+The main text states that the threshold of Fig.~\ref{M-fig:threshold} moves by less than $5\%$ when
+numerical and material parameters are varied. This section gives the evidence. The largest change is
+$4.6\%$.
+
+Table~\ref{tab:ranges} lists the reference value of each parameter, the range over which it was varied,
+and the largest change of the threshold at $\theta = 30^\circ$. Figure~\ref{fig:robust}(a) shows the
+convergence with the cell size. Below $2\un{nm}$ the threshold changes by less than $1\%$, and all runs of
+the paper use $1\un{nm}$. Figure~\ref{fig:robust}(b) shows the dependence on damping, the parameter with
+the largest effect.
+
+\begin{table}
+  \centering
+  \caption{Parameters of the simulations, each with its reference value, its range of variation, and the
+  largest change of the threshold current at $\theta = 30^\circ$ within that range.}
+  \label{tab:ranges}
+  \begin{tabular}{lccc}
+    \hline
+    Parameter & Reference & Range & Change of $\jc$ \\
+    \hline
+    Damping constant & 0.003 & 0.001 to 0.01 & $4.6\%$ \\
+    Cell size & $1\un{nm}$ & 0.5 to $4\un{nm}$ & $0.8\%$ below $2\un{nm}$ \\
+    Rise time of the pulse & $10\un{ps}$ & 1 to $50\un{ps}$ & $1.9\%$ \\
+    Film thickness $d$ & $20\un{nm}$ & fixed & not varied \\
+    \hline
+  \end{tabular}
+\end{table}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.62\textwidth]{example-image-a}
+  \caption{Threshold current density at $\theta = 30^\circ$, relative to the reference run, (a) against
+  cell size and (b) against the damping constant. The dashed lines mark a change of $\pm 5\%$.}
+  \label{fig:robust}
+\end{figure}
+
+The sweep comprises 212 runs. Only the runs that set the entries of Table~\ref{tab:ranges} are drawn in
+Fig.~\ref{fig:robust}. The output of every run, with the script that extracts the threshold, is in the
+folder \texttt{sweep/} of the data package.
+
+\section{Effect of temperature}
+\label{sec:thermal}
+
+The main text states that thermal fluctuations at $300\un{K}$ broaden the transition and do not shift it.
+Figure~\ref{fig:thermal} shows the switching probability against current density for 64 runs per point,
+each with a different seed of the thermal field. The probability rises from 0.1 to 0.9 over $8\%$ of the
+zero-temperature threshold, and it crosses 0.5 within $1\%$ of that threshold.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.45\textwidth]{example-image-b}
+  \caption{Switching probability at $300\un{K}$ and $\theta = 30^\circ$ against current density in units
+  of the zero-temperature threshold $\jc$. Each point is the mean of 64 runs, and the line is an error
+  function fitted to the points.}
+  \label{fig:thermal}
+\end{figure}
+
+\end{document}

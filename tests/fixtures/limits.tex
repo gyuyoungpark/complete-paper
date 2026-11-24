@@ -1,0 +1,36 @@
+% Test fixture for the limits check of audit_tex.py (ground rule 10).
+% Planted: a limitation in the abstract, one in a caption, one in the
+% Conclusion; a limitation of earlier work in the introduction (not flagged);
+% one limitation in the Results (counted, not flagged); a model description in
+% the Methods (low severity).
+\documentclass{article}
+\begin{document}
+\title{Field-free switching of a noncollinear antiferromagnet}
+\begin{abstract}
+Spin-orbit torque reverses the octupole order of a single-domain Mn3Sn film.
+This study is limited to a single-domain model.
+\end{abstract}
+
+\section{Introduction}
+A key limitation of existing switching schemes is the need for a bias field~\cite{a}.
+Here we show that tilting the kagome plane removes it.
+
+\section{Results}
+Reversal takes 0.3 ns (Fig.~\ref{fig:1}).
+Thermal fluctuations were not included in these simulations.
+
+\begin{figure}
+\caption{Reversal time against tilt angle. Domain walls were not considered.}
+\label{fig:1}
+\end{figure}
+
+\section{Conclusion}
+Tilting the kagome plane enables field-free switching. A limitation of our model is the absence of domain walls.
+
+\section*{Methods}
+Thermal fluctuations are not included in the model.
+
+\begin{thebibliography}{1}
+\bibitem{a} A. Author, J. Phys. 1, 1 (2020).
+\end{thebibliography}
+\end{document}

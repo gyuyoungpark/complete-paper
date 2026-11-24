@@ -1,0 +1,21 @@
+% Test fixture for eq_refs.py. Each problem is planted on purpose.
+\documentclass{article}
+\begin{document}
+The energy density is
+\begin{equation}
+E = A k^2 ,
+\label{eq:energy}
+\end{equation}
+where $A$ is the exchange stiffness and $k$ the wave number.
+As Eq.~(1) shows, the energy grows with $k$.   % planted: number typed by hand
+\begin{equation}
+F = 0 .
+\end{equation}                                % planted: numbered display without a label
+\begin{align}
+G = 1 \label{eq:dup}
+\end{align}
+\begin{equation}
+H = 2 \label{eq:dup}
+\end{equation}                                % planted: duplicate label
+See Eq.~\eqref{eq:missing} and Eq.~\eqref{eq:dup}.   % planted: unresolved reference
+\end{document}

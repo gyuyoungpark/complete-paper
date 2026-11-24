@@ -1,0 +1,117 @@
+% Invented example for the complete-paper skill (parts/supplement.md).
+% The physics, the numbers and the references are made up; only the use of the supplement is the point.
+\documentclass[twocolumn,10pt]{article}
+\usepackage[margin=18mm]{geometry}
+\input{shared}
+\externaldocument[S-]{supplement}
+
+\title{Field-free switching of a tilted kagome antiferromagnet}
+\author{A. Author \and B. Author}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Electrical switching of noncollinear antiferromagnets has so far required an in-plane magnetic field, which
+blocks their use in dense memory. Here we show by micromagnetic simulation that tilting the kagome plane of
+Mn$_3$Sn away from the film normal removes this requirement. A current alone then reverses the octupole
+moment, above a threshold that falls as the inverse sine of the tilt angle. The threshold agrees with an
+analytical balance of spin-orbit torque and anisotropy. Tilt is therefore a design parameter for field-free
+antiferromagnetic memory.
+\end{abstract}
+
+\section{Introduction}
+
+Noncollinear antiferromagnets combine the fast dynamics of antiferromagnets with a readout signal as large
+as that of ferromagnets. In Mn$_3$Sn the signal comes from a cluster octupole moment, which a spin-orbit
+torque can rotate. Every switching experiment reported so far applies a magnetic field along the current to
+make the reversal deterministic~\cite{A,B}. A field is acceptable in a test structure and unacceptable in a
+memory array, where neighbouring cells would share it.
+
+One way to break the symmetry without a field is to break it in the crystal. Films of Mn$_3$Sn grow with
+the kagome plane tilted from the film normal when the substrate is miscut~\cite{C}. Building memory from such films
+needs two answers, whether the tilt makes the current-induced reversal deterministic and at what cost in
+current. We answer both questions with simulations of a Mn$_3$Sn/W bilayer and with an analytical model.
+
+\section{Model}
+
+Figure~\ref{fig:device} shows the geometry. A current density $j$ flows along $x$ in the W layer and injects
+a spin current polarized along $y$ into the Mn$_3$Sn film of thickness $d$. The kagome plane is tilted by
+the angle $\theta$ about the $y$ axis. We integrate the coupled equations of motion of the three sublattice
+moments at zero temperature unless stated otherwise.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\columnwidth]{example-image-a}
+  \caption{Geometry of the bilayer. The kagome plane (shaded) is tilted by the angle $\theta$ about the $y$
+  axis, and the current density $j$ flows along $x$. Not to scale.}
+  \label{fig:device}
+\end{figure}
+
+For a tilted plane the damping-like torque has a component along the easy axis of the octupole. Reversal
+starts when this component exceeds the anisotropy torque, which gives the threshold
+\begin{equation}
+  \jc(\theta) = \frac{\jzero}{\sin\theta}, \qquad \jzero = \frac{2 e \Ku d}{\hbar\,\tsh},
+  \label{eq:threshold}
+\end{equation}
+where $\Ku$ is the anisotropy energy density and $\tsh$ the spin Hall angle of W (derivation in
+Sec.~\ref{S-sec:derivation} of the Supplemental Material~\cite{sm}). The threshold diverges at
+$\theta = 0$, so that without tilt no current reverses the moment.
+
+\section{Results}
+
+Figure~\ref{fig:dynamics} shows the response to a current pulse of $6\times10^{11}\un{A/m^2}$. For
+$\theta = 0$ the moment tilts by a few degrees and returns. For every tilted film it reverses, and the
+reversal is faster for larger tilt. The switching time falls from $0.60\un{ns}$ at $15^\circ$ to
+$0.22\un{ns}$ at $45^\circ$. The final state is the same in all runs and is set by the sign of the current,
+which is the property a memory needs.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\columnwidth]{example-image-b}
+  \caption{Out-of-plane component $\mz$ of the octupole moment against time for four tilt angles, at
+  $j = 6\times10^{11}\un{A/m^2}$. The pulse starts at $t = 0$.}
+  \label{fig:dynamics}
+\end{figure}
+
+Figure~\ref{fig:threshold} compares the threshold found in the simulations with Eq.~(\ref{eq:threshold}).
+The two agree within $4\%$ between $5^\circ$ and $45^\circ$, with no adjustable parameter. A tilt of
+$30^\circ$ costs twice the current of a film tilted by $90^\circ$, and a tilt of $10^\circ$ costs six times
+that current. The threshold moves by less than $5\%$ when the damping, the mesh and the rise time of the
+pulse are varied over the ranges given in Sec.~\ref{S-sec:robust}.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\columnwidth]{example-image-c}
+  \caption{Threshold current density $\jc$ against tilt angle $\theta$. Circles show the simulation, and the
+  line Eq.~(\ref{eq:threshold}) with the parameters of the simulation.}
+  \label{fig:threshold}
+\end{figure}
+
+A memory operates near room temperature. At $300\un{K}$ thermal fluctuations broaden the transition from
+no reversal to reversal over about $8\%$ of the threshold current, and they do not shift its centre
+(Fig.~\ref{S-fig:thermal}). The zero-temperature threshold of Eq.~(\ref{eq:threshold}) therefore remains
+the design value.
+
+\section{Conclusion}
+
+In summary, a tilt of the kagome plane makes the current-induced reversal of Mn$_3$Sn deterministic
+without a magnetic field. The price is a threshold current that grows inversely with the sine of the tilt
+angle, which a simple torque balance predicts without free parameters. Miscut substrates that give tilts
+of $30^\circ$ or more keep this price within a factor of two.
+
+\paragraph{Data availability.}
+The input files, the raw output of all 212 simulation runs and the scripts that produce every figure of
+the paper and of its Supplemental Material are deposited at Zenodo, doi:10.5281/zenodo.0000000
+(placeholder).
+
+\begin{thebibliography}{9}
+\bibitem{A} [Placeholder: first report of current-induced switching of Mn$_3$Sn with an in-plane field.]
+\bibitem{B} [Placeholder: the mechanism of octupole reversal by spin-orbit torque.]
+\bibitem{C} [Placeholder: growth of Mn$_3$Sn films with a tilted kagome plane on miscut substrates.]
+\bibitem{sm} See Supplemental Material at [URL will be inserted by publisher] for the derivation of
+  Eq.~(\ref{eq:threshold}), the robustness of the threshold against numerical and material parameters,
+  and the effect of temperature.
+\end{thebibliography}
+\end{document}

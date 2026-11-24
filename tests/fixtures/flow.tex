@@ -1,0 +1,34 @@
+% Test fixture for the xrefs order, punct and gap checks of audit_tex.py
+% (ground rules 10, 12 and 14). Planted: an absence-type gap in the abstract
+% and in the introduction; a colon in the abstract; a semicolon in the Results;
+% a dash in a caption; Eq. (2) cited before Eq. (1); Eq. (1) cited before it is
+% displayed. Not flagged: the title colon, a ratio, a time, a TODO marker, a
+% heading colon, a physics sentence in the Results that says "has not been".
+\documentclass{article}
+\begin{document}
+\title{Mn3Sn: field-free switching}
+\begin{abstract}
+Field-free switching of Mn3Sn has not been studied.
+Here we show two results: fast reversal and a low threshold.
+\end{abstract}
+
+\section{Introduction}
+The switching mechanism remains unknown.
+Dense memory calls for field-free switching at a ratio of 1:2 and by 12:30 each day.
+
+\section{Results: reversal}
+To model the switching, we use Eq.~\eqref{eq:two}; the reversal follows Eq.~\eqref{eq:one}.
+\begin{equation}
+E = 1 \label{eq:one}
+\end{equation}
+\begin{equation}
+F = 2 \label{eq:two}
+\end{equation}
+The film has not been annealed in this model \textcolor{red}{\textbf{[TODO: check: annealing]}}.
+
+\begin{figure}
+\caption{Reversal time against tilt angle --- simulation.}
+\label{fig:1}
+\end{figure}
+Fig.~\ref{fig:1} shows the reversal time.
+\end{document}

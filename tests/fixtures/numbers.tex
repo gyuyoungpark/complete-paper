@@ -1,0 +1,17 @@
+% Test fixture for the numbers check of audit_tex.py (ground rule 16).
+% Planted: the conclusion states 0.4 ns, which appears nowhere else; the
+% Results say 0.3 ns. Not flagged: 0.3 in the conclusion, which the Results
+% state, and the section number in a reference.
+\documentclass{article}
+\begin{document}
+\begin{abstract}
+Here we show that reversal takes 0.3 ns.
+\end{abstract}
+
+\section{Results}
+\label{sec:results}
+To measure the reversal time, we simulate the switching. Reversal takes 0.3 ns.
+
+\section{Conclusion}
+We have shown that reversal takes 0.3 ns, as Sec.~\ref{sec:results} shows, and that it is 0.4 ns at the largest tilt.
+\end{document}

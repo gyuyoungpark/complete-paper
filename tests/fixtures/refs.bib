@@ -1,0 +1,59 @@
+% Test fixture for verify_refs.py. Real, well-known references plus planted errors.
+
+@article{epr1935,
+  author  = {Einstein, A. and Podolsky, B. and Rosen, N.},
+  title   = {Can Quantum-Mechanical Description of Physical Reality Be Considered Complete?},
+  journal = {Phys. Rev.},
+  volume  = {47},
+  pages   = {777},
+  year    = {1935},
+  doi     = {10.1103/PhysRev.47.777}
+}
+
+@article{lecun2015,
+  author  = {LeCun, Yann and Bengio, Yoshua and Hinton, Geoffrey},
+  title   = {Deep learning},
+  journal = {Nature},
+  volume  = {521},
+  pages   = {436--444},
+  year    = {2015},
+  doi     = {10.1038/nature14539}
+}
+
+@misc{vaswani2017,
+  author        = {Vaswani, Ashish and others},
+  title         = {Attention Is All You Need},
+  year          = {2017},
+  eprint        = {1706.03762},
+  archivePrefix = {arXiv}
+}
+
+% planted: wrong year and wrong first author
+@article{lecun_wrong,
+  author  = {Hinton, Geoffrey and LeCun, Yann},
+  title   = {Deep learning},
+  journal = {Nature},
+  volume  = {521},
+  pages   = {436},
+  year    = {2019},
+  doi     = {10.1038/nature14539}
+}
+
+% planted: DOI that does not exist
+@article{phantom_doi,
+  author  = {Nobody, A.},
+  title   = {A paper that does not exist},
+  journal = {Phys. Rev. Lett.},
+  volume  = {999},
+  pages   = {999999},
+  year    = {2030},
+  doi     = {10.1103/PhysRevLett.999.999999}
+}
+
+% planted: no identifier
+@article{no_identifier,
+  author  = {Einstein, A. and Podolsky, B. and Rosen, N.},
+  title   = {Can Quantum-Mechanical Description of Physical Reality Be Considered Complete?},
+  journal = {Phys. Rev.},
+  year    = {1935}
+}

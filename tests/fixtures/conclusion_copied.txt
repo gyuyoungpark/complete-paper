@@ -1,0 +1,1 @@
+We have shown that tilting the kagome plane lets spin-orbit torque reverse the octupole order of Mn3Sn without a bias field. These results identify crystal orientation as a design parameter for field-free antiferromagnetic memory.

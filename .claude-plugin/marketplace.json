@@ -1,0 +1,14 @@
+{
+  "name": "complete-paper",
+  "description": "From results to a complete paper: every part, title to supplement.",
+  "owner": {
+    "name": "Gyuyoung Park"
+  },
+  "plugins": [
+    {
+      "name": "complete-paper",
+      "source": "./",
+      "description": "From results to a complete paper: every part, title to supplement."
+    }
+  ]
+}

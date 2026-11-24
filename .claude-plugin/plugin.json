@@ -1,0 +1,14 @@
+{
+  "name": "complete-paper",
+  "displayName": "Complete Paper",
+  "version": "0.1.0",
+  "description": "From results to a complete paper: every part, title to supplement. Write, revise or audit any part without inventing data or citations.",
+  "author": {
+    "name": "Gyuyoung Park",
+    "url": "https://gyuyoungpark.github.io/"
+  },
+  "homepage": "https://github.com/gyuyoungpark/complete-paper",
+  "repository": "https://github.com/gyuyoungpark/complete-paper",
+  "license": "MIT",
+  "keywords": ["academic-writing", "research-paper", "manuscript", "scientific-writing", "latex", "agent-skills"]
+}

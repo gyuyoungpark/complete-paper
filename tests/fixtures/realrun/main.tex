@@ -1,0 +1,63 @@
+% Invented fixture for the checks fixed after the first real run of the skill (2026-11-24).
+% Each pattern below is one that the scripts got wrong on a real manuscript. The physics is a placeholder,
+% taken from the invented Mn3Sn example of examples/supplement/.
+\documentclass[aip,reprint]{revtex4-2}
+\begin{document}
+\title{Placeholder title for the fixture}
+\begin{abstract}
+We simulate the current-induced reversal of tilted Mn$_3$Sn films and compare it with untilted films.
+\end{abstract}
+\maketitle
+
+\section{Introduction}
+Antiferromagnetic memory needs a reversal that a current alone can set~\cite{A}.
+Earlier simulations of Mn$_3$Sn assumed an untilted kagome plane~\cite{B}.
+These works do not evaluate how a tilt of the plane changes the threshold current.
+Here we simulate tilted films and find that the threshold falls by a factor of two at a tilt of 30 degrees.
+Sections~\ref{sec:model}--\ref{sec:comparison} give the model and the comparison, and Sec.~\ref{sec:conclusions} states the scope.
+
+\section{Model}
+\label{sec:model}
+We use the energy
+\begin{equation}
+E=-K\cos^2\varphi-\mu_0 M H\cos\varphi,
+\label{eq:first}
+\end{equation}
+and balance the torques on the octupole moment,
+\begin{equation}
+\tau_{\rm SOT}\sin\theta=\partial E/\partial\varphi.
+\label{eq:second}
+\end{equation}
+Equation~\eqref{eq:second} defines the threshold, and Eq.~\eqref{eq:first} fixes the anisotropy that it must overcome.
+
+\section{Comparison with untilted films}
+\label{sec:comparison}
+The tilt lowers the threshold by a factor of two at 30 degrees (Table~\ref{tab:values}).
+Resolving the switching time in a film at room temperature also requires low damping.
+
+\begin{table}[tb]
+\caption{Threshold current density of the two films. Values in units of $10^{11}$ A/m$^2$.}
+\label{tab:values}
+\begin{ruledtabular}
+\begin{tabular}{lc}
+Film & $j_c$\\
+tilted by 30 degrees & 6\\
+tilted by 15 degrees & 12
+\end{tabular}
+\end{ruledtabular}
+\end{table}
+
+\section{Conclusions}
+\label{sec:conclusions}
+A tilt of the kagome plane lets a current alone reverse the octupole moment.
+Our comparisons are between models.
+
+\begin{acknowledgments}
+Claude (Anthropic) assisted figure preparation and manuscript revision.
+\end{acknowledgments}
+
+\begin{thebibliography}{9}
+\bibitem{A} A. Author, Placeholder Journal \textbf{1}, 1 (2020).
+\bibitem{B} B. Author, Placeholder Journal \textbf{2}, 2 (2021).
+\end{thebibliography}
+\end{document}

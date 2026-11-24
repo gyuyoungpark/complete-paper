@@ -1,0 +1,38 @@
+name: release
+
+# Push a tag v<version> after `python tools/version.py bump <version>` has been committed.
+# The workflow checks that the tag, plugin.json, SKILL.md and CHANGELOG.md agree, runs the tests, builds
+# dist/complete-paper.skill and publishes a GitHub release with that file and the CHANGELOG section as notes.
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Tag, version files and changelog agree
+        run: python tools/version.py check "$GITHUB_REF_NAME"
+      - name: Install the figure dependencies
+        run: python -m pip install matplotlib numpy
+      - name: Unit tests and planted-fault cases (offline)
+        run: python -m unittest discover -s tests
+      - name: Build the skill package
+        run: python tools/build_skill.py
+      - name: Release notes from CHANGELOG.md
+        run: python tools/version.py notes "${GITHUB_REF_NAME#v}" > release-notes.md
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create "$GITHUB_REF_NAME" dist/complete-paper.skill
+          --title "complete-paper $GITHUB_REF_NAME"
+          --notes-file release-notes.md

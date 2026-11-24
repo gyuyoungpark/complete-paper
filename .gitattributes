@@ -1,0 +1,8 @@
+# Text files are stored and checked out with LF on every system, so word counts,
+# hashes and the packaged skill do not depend on the platform.
+* text=auto eol=lf
+
+*.png binary
+*.pdf binary
+*.skill binary
+*.zip binary

@@ -1,0 +1,45 @@
+% Test fixture for audit_tex.py: a small manuscript that should pass every check.
+\documentclass[aps,prb,reprint]{revtex4-2}
+\usepackage{graphicx}
+\begin{document}
+
+\title{Strain-stabilized skyrmions in thin magnetic films}
+\author{A. Author}
+\affiliation{Institute, City}
+
+\begin{abstract}
+Magnetic skyrmions are candidates for dense memory.
+Here we predict that strain widens the skyrmion stability window in thin films by a factor of 2.6 at room temperature.
+\end{abstract}
+
+\maketitle
+
+Spin-orbit torque (SOT) moves skyrmions~\cite{a,b}.
+SOT also moves domain walls, and SOT efficiency depends on the interface.
+Figure~\ref{fig:one} shows the geometry, and Fig.~\ref{fig:two} shows the stability window.
+The energy density is
+\begin{equation}
+E = A (\nabla \mathbf{m})^2 ,
+\label{eq:energy}
+\end{equation}
+where $A$ is the exchange stiffness.
+The window grows by a factor of 2.6, as Eq.~\eqref{eq:energy} implies.
+
+\begin{figure}
+\includegraphics{f1}
+\caption{Geometry. (a) Film. (b) Strain profile.}
+\label{fig:one}
+\end{figure}
+
+\begin{figure}
+\includegraphics{f2}
+\caption{Stability window versus strain.}
+\label{fig:two}
+\end{figure}
+
+\begin{thebibliography}{9}
+\bibitem{a} A. One, Phys. Rev. Lett. \textbf{1}, 1 (2020).
+\bibitem{b} B. Two, Phys. Rev. B \textbf{2}, 2 (2021).
+\end{thebibliography}
+
+\end{document}

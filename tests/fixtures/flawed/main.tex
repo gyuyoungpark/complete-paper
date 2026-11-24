@@ -1,0 +1,61 @@
+% Test fixture for audit_tex.py. Every problem below is planted on purpose;
+% tests/test_audit_tex.py lists what each check must find.
+\documentclass[aps,prl,reprint]{revtex4-2}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\begin{document}
+
+\title{Can strain stabilize skyrmions in YIG?}
+\author{A. Author}
+\affiliation{XYZ Laboratory, Springfield}
+
+\begin{abstract}
+Magnetic skyrmions are candidates for dense memory.
+Here we predict that strain stabilizes skyrmions in thin films, widening the stability window by a factor of 2.6 at $T = 300$~K.
+The DMI sets the skyrmion size, and the effect reaches 45\% of the bulk value.
+\end{abstract}
+
+\maketitle
+
+Spin-orbit torque (SOT) drives skyrmions efficiently~\cite{b,a}.
+SOT also moves domain walls.
+We integrate the LLG equation.
+Figure~\ref{fig:two} shows the stability window, and Fig.~\ref{fig:one} shows the geometry.
+Is this effect intrinsic?
+The energy density is
+\begin{equation}
+E = A (\nabla \mathbf{m})^2 ,
+\label{eq:energy}
+\end{equation}
+where $A$ is the exchange stiffness.
+
+\begin{figure}
+\includegraphics{f1}
+\caption{Geometry. (a) Film; (b) strain profile.}
+\label{fig:one}
+\end{figure}
+
+\begin{figure}
+\includegraphics{f2}
+\caption{Is the window wider?}
+\label{fig:two}
+\end{figure}
+
+\begin{figure}
+\includegraphics{f3}
+\caption{Never cited.}
+\label{fig:three}
+\end{figure}
+
+The stability window grows by a factor of 2.6 at 300~K.
+\textcolor{red}{\textbf{[TODO: data for the thick-film case]}}
+See also Ref.~\cite{c} and Fig.~\ref{fig:missing}.
+% TODO: ask about the substrate
+
+\begin{thebibliography}{9}
+\bibitem{a} A. One, Phys. Rev. Lett. \textbf{1}, 1 (2020).
+\bibitem{b} B. Two, Phys. Rev. B \textbf{2}, 2 (2021).
+\bibitem{d} D. Four, Nat. Phys. \textbf{4}, 4 (2022).
+\end{thebibliography}
+
+\end{document}

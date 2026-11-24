@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.DS_Store
+# raw output of claude plugin eval: it holds local paths; the summary is in evals/README.md
+evals/results/
+# built packages (complete-paper.skill), attached to a release instead
+dist/

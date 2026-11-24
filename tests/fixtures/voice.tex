@@ -1,0 +1,30 @@
+% Test fixture for the voice check of audit_tex.py (ground rule 11).
+% Planted: an activity verb and a passive in the abstract; a passive in the
+% Methods. Not flagged: active "we" sentences, a finding as the subject,
+% earlier work with its own authors or a citation, a passive in a caption.
+\documentclass{article}
+\begin{document}
+\begin{abstract}
+In this paper, we investigate field-free switching in Mn3Sn.
+Atomistic simulations were performed for a single-domain film.
+\end{abstract}
+
+\section{Introduction}
+Smith et al. measured the switching current in tilted films.
+Bias-free switching was proposed for collinear antiferromagnets~\cite{a}.
+Here we implement spin-orbit torque in an atomistic model and show that tilting removes the bias field.
+
+\section{Results}
+We simulate reversal at every tilt angle. Reversal completes within 0.3 ns.
+
+\begin{figure}
+\caption{Reversal time against tilt angle. The threshold current was obtained from the simulations.}
+\end{figure}
+
+\section*{Methods}
+The material parameters were chosen from the literature.
+
+\begin{thebibliography}{1}
+\bibitem{a} A. Author, J. Phys. 1, 1 (2020).
+\end{thebibliography}
+\end{document}
