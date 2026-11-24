@@ -37,7 +37,7 @@
 - Claude Code plugin and marketplace manifests.
 - Agent-level eval cases for `claude plugin eval` under `evals/` (five cases: invented numbers, audit without rewriting, limitations once, invented citations, title within the claim). First results, 2026-11-24: with the plugin 0.8, without 0.6; the audit case passes in both arms only with `--judge-model sonnet` (`evals/README.md`).
 - README in English, Chinese, Korean and Japanese, with an author section (Gyuyoung Park, homepage, GitHub, ResearchGate).
-- `tools/build_skill.py` builds `dist/complete-paper.skill` for the Claude app; a GitHub Actions workflow runs the tests on Linux and Windows with Python 3.9 and 3.13 and builds the package.
+- `tools/build_skill.py` builds `dist/complete-paper.skill` for the Claude app; a GitHub Actions workflow runs the tests on Linux (Python 3.10 and 3.14) and Windows (Python 3.9 and 3.14) and builds the package.
 - Tests for the faults found on the first real manuscript, in an invented fixture (`tests/fixtures/realrun/`).
 - Release tooling: `tools/version.py` (`bump` sets the version in `plugin.json` and `SKILL.md` and dates the changelog section; `check` compares them with a tag; `notes` prints a version's changelog section), `.github/workflows/release.yml` (a pushed tag `v<version>` is checked, tested, packaged and published as a GitHub release with `complete-paper.skill`), and `RELEASING.md`. The tests workflow checks that the two version files agree. The READMEs say how users update.
 - `.gitattributes`: text files are stored with LF line ends on every system, so word counts and the packaged skill do not depend on the platform.
@@ -55,6 +55,7 @@
 - The four READMEs open with what the skill does (a figure before and after, a paragraph before and after, part of an audit report), then how to install it and a first request to try. The edit-guard example moved to the Scripts section. The Chinese README uses full-width punctuation in its prose.
 
 ### Fixed
+- `fig_lint.py` reported a legend laid on the axis frame (`borderaxespad=0`) as crossing the frame with matplotlib 3.11, where rounding puts its edge a fraction of a point outside. An edge within 0.5 pt of the frame now counts as on it.
 - `prose_lint.py` reported wrong line numbers after the abstract and after every heading, because the headings it marks added lines. The marks now keep the line count.
 - `audit.py` counted all of a letter without section headings (as in PRL) as its abstract, so the abstract looked too long and the running text had no words. The text after the abstract is now running text.
 - `submit_check.py` treats a rooted path such as `/home/user/a.pdf` as absolute on Windows too, and prints relative paths with forward slashes on every system.

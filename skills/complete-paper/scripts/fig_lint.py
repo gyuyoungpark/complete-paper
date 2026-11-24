@@ -713,8 +713,11 @@ def check(fig, widths_mm=None, min_font=6.0, max_font=None, min_height_mm=None, 
             if row["kind"] == "3d":
                 continue
             if ax.name == "rectilinear" and ax.axison:   # the axis frame and the tick marks
-                sides = {"left": box[0] < rb[0] < box[2], "right": box[0] < rb[2] < box[2],
-                         "bottom": box[1] < rb[1] < box[3], "top": box[1] < rb[3] < box[3]}
+                tol = 0.5 * px                           # an edge laid on the frame (borderaxespad=0) does not cross it
+                sides = {"left": box[0] < rb[0] - tol and rb[0] + tol < box[2],
+                         "right": box[0] < rb[2] - tol and rb[2] + tol < box[2],
+                         "bottom": box[1] < rb[1] - tol and rb[1] + tol < box[3],
+                         "top": box[1] < rb[3] - tol and rb[3] + tol < box[3]}
                 crossed = [side for side, hit in sides.items() if hit and ax.spines[side].get_visible()]
                 if crossed and not (own is not None and own is not row and own["parent"] is row):
                     add("E", where(row), f"{name} crosses the axis frame ({', '.join(crossed)})")
