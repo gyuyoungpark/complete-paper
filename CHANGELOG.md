@@ -10,6 +10,7 @@
 These came up when the skill audited a real Word manuscript on 2026-11-24.
 - `audit.py` flags a statement left ending in an ellipsis ("publicly available via …") and figure or table numbers left as "Fig. X", "Supplementary Fig. X" or "Table X". "Table X" is not flagged where ten or more tables make it the tenth table in Roman numbering.
 - `audit_tex.py --checks xrefs` reported every figure as never cited when the text types "Fig. 1" without `\ref`, as text from Word does. Typed figure and table numbers now count as citations, with lists and ranges ("Figs. 2 and 3", "Figs. 5–6"); "Extended Data Fig. 4" and "Supplementary Fig. 4" do not count as main figures, and a panel range ("Fig. 1a–c") is not a figure range. In a supplement, typed numbers are not read, since they usually point to the main text.
+- `cite_order.py` read only the first number of a typed list, so "Figs. 2 and 3" left Fig. 3 uncited. It now reads every number of a list or range ("Figs. 2 and 3", "Figs. 6–8", "Tables I and II"), with the panels of each ("Fig. 4a,b and 5(c)"); "Extended Data Figs. 9 and 10" still counts for no main figure. A typed number at the end of a sentence before a word starting with T or K ("Fig. 1. The ...") was taken for a quantity in tesla or kelvin and not counted; a unit must now be a whole word.
 - `prose_lint.py` said an abbreviation is "defined 2 times" when it is defined once in the abstract and once in the main text, as ground rule 5 requires. The abstract and the text are now counted apart.
 
 ## [0.1.0] - 2026-11-24

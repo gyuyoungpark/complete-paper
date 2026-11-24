@@ -857,6 +857,27 @@ class AuditTypedMentions(unittest.TestCase):
         self.assertTrue(has(f, "xrefs", "INFO", "6 figure or table number(s) typed as text"))
 
 
+class CiteOrderTypedLists(unittest.TestCase):
+    """cite_order.py reads every number of a typed list or range, with the panels of each, as Word-derived text has them;
+    "Fig. 1. The" is a figure, not 1 T."""
+
+    def test_lists_and_ranges(self):
+        import tempfile
+        caps = {4: "(a) Trace. (b) Cut.", 5: "(a) Map. (b) Cut. (c) Phase diagram."}
+        tex = ("\\begin{document}\nThe sketch is in Fig. 1. The map is in Figs. 2 and 3, the cuts in Fig. 4a,b and 5(c), "
+               "and the rates in Tables I and II.\nThe long runs are in Figs. 6\u20138 and Extended Data Figs. 9 and 10.\n\n"
+               + "".join("\\begin{figure}\\caption{%s}\\label{f:%d}\\end{figure}\n" % (caps.get(k, "Panel."), k) for k in range(1, 11))
+               + "\\begin{table}\\caption{A.}\\label{t:a}\\end{table}\n\\begin{table}\\caption{B.}\\label{t:b}\\end{table}\n\\end{document}\n")
+        with tempfile.TemporaryDirectory() as d:
+            code, out = run_script("cite_order.py", write(d, "lists.tex", tex))
+        never = [l.split(": ")[1].split()[1] for l in out.splitlines() if "is never cited" in l]
+        self.assertEqual(never, ["9", "10"], "Extended Data figures are not main figures")
+        self.assertIn("Fig. 5: panels (a), (b) named in the caption and never cited", out)
+        self.assertNotIn("Fig. 4:", out, "panel (c) belongs to Fig. 5, not to Fig. 4")
+        self.assertNotIn("first cited in the order", out)
+        self.assertIn("10 figure or table number(s) are typed by hand", out)
+
+
 class AuditWordPlaceholders(unittest.TestCase):
     """audit.py: a statement left ending in an ellipsis, and figure or table numbers left as X."""
     SKIP = ["--skip", "equations", "citations", "captions", "tables", "references", "prose", "house rules", "abstract", "duplication"]

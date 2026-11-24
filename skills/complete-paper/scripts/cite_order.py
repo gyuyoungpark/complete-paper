@@ -24,7 +24,13 @@ import sys
 from collections import OrderedDict
 
 REF = re.compile(r"\\[A-Za-z]*[Rr]ef\*?\s*\{([^}]*)\}")
-TYPED = re.compile(r"(?<![A-Za-z])(Figs?\.|Figures?|Tables?|Tab\.)(?:\s|~|\\,)*((?:\d+|[IVXL]+\b)(?![.\d]*\s*(?:nm|K|T|ns|ps|eV|mA|\\%|%)))")
+# a number followed by a unit is a quantity ("Table 2 K" is not), but "Fig. 1. The" is a figure: the unit must be a whole word
+UNIT_AFTER = r"(?![.\d]*\s*(?:(?:nm|K|T|ns|ps|eV|mA)(?![A-Za-z])|\\%|%))"
+TYPED = re.compile(r"(?<![A-Za-z])(Figs?\.|Figures?|Tables?|Tab\.)(?:\s|~|\\,)*((?:\d+|[IVXL]+\b)" + UNIT_AFTER + ")")
+# after a typed number: its panels ("2a,b", "2(a)"), then the next number of a list or range ("Figs. 2 and 3", "Figs. 2-4")
+PANEL_SPEC = re.compile(r"(?:[a-l](?![a-z])(?:\s*(?:,|--?|–)\s*[a-l](?![a-z]))*)?"
+                        r"(?:\s*(?:(?:,|and|--?|–)\s*)?\(\s*[a-l](?:\s*(?:,|--?|–|and)\s*[a-l])*\s*\))*")
+LIST_NEXT = re.compile(r"(?:\s|~)*(,\s*and|,|and|&|or|to|--?-?|–|—)(?:\s|~)*(\d+|[IVXL]+\b)" + UNIT_AFTER)
 BEFORE_SUPP = re.compile(r"(Supplement(?:al|ary)|Supporting|Extended\s+Data|Suppl?\.)\s*$", re.I)
 OPENER = re.compile(r"^\W*(?:As\s+(?:shown|seen|can\s+be\s+seen)\s+in\s+)?(?:Figures?|Figs?\.|Tables?)(?:\s|~)*(?:\\[A-Za-z]*ref\*?\s*\{[^}]*\}|\d+|[IVXL]+)"
                     r"\S{0,6}\s+(?:shows?|presents?|displays?|illustrates?|depicts?|plots?|summari[sz]es?|compares?|gives?|reports?|lists?)\b")
@@ -158,13 +164,31 @@ def check(lines):
         if BEFORE_SUPP.search(flow[max(0, m.start() - 22):m.start()]):
             continue
         kind = "table" if m.group(1).lower().startswith("tab") else "fig"
-        if kind == "fig" and not m.group(2).isdigit():
-            continue
-        key = (kind, roman(m.group(2)))
-        if key in floats:
-            typed += 1
-            floats[key]["cites"].append(m.start())
-            floats[key]["cited_panels"].update(panels_after(flow[m.end():m.end() + 80]))
+        # every number of the mention: (number, where its panels start, where they end); a range adds the numbers between
+        items, pos, num = [], m.end(), m.group(2)
+        while True:
+            panels = PANEL_SPEC.match(flow, pos)
+            nxt = LIST_NEXT.match(flow, panels.end())
+            items.append((num, pos, panels.end() if nxt else pos + 80))
+            if not nxt:
+                break
+            lo, hi = roman(num), roman(nxt.group(2))
+            if nxt.group(1) in ("to", "-", "--", "---", "–", "—") and num.isdigit() == nxt.group(2).isdigit() and 0 < hi - lo <= 50:
+                items += [(str(k), None, None) for k in range(lo + 1, hi)]
+            num, pos = nxt.group(2), nxt.end()
+        seen = set()
+        for num, a, b in items:
+            if kind == "fig" and not num.isdigit():
+                continue
+            key = (kind, roman(num))
+            if key not in floats:
+                continue
+            if key not in seen:
+                typed += 1
+                floats[key]["cites"].append(m.start())
+                seen.add(key)
+            if a is not None:
+                floats[key]["cited_panels"].update(panels_after(flow[a:b]))
     found = []
 
     def add(level, place, msg):
