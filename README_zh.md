@@ -63,7 +63,7 @@ npx skills add gyuyoungpark/complete-paper
 
 **更新**：用 skills CLI 安装的，运行 `npx skills update`。作为插件安装的，运行 `/plugin marketplace update complete-paper`，或在 `/plugin` 中为该 marketplace 开启自动更新。在 Claude 应用中，上传新版本 release 中的 `complete-paper.skill`。
 
-环境要求：Python 3.9 或更高版本。绘图脚本需要 matplotlib 和 numpy。`ref_check.py --online` 需要联网。`submit_check.py` 在已安装时会使用 `pdflatex` 和 poppler 工具。脚本读取 LaTeX 源文件。
+环境要求：Python 3.9 或更高版本。绘图脚本需要 matplotlib 和 numpy。`ref_check.py --online` 需要联网。`submit_check.py` 在已安装时会使用 `pdflatex` 和 poppler 工具。脚本读取 LaTeX 源文件；Word 稿件先由 `docx_to_tex.py` 转成供检查用的 LaTeX 副本。
 
 ## 第一次使用
 
@@ -85,7 +85,7 @@ npx skills add gyuyoungpark/complete-paper
 
 - **整篇论文只有一份 claim sheet。** `brief.md` 记录结果、研究体系、证据类型，以及论文没有展示的内容。标题、摘要、图注和结论都依据它来写，因此它们不会各说各话，也不会声称多于图所展示的内容。
 - **每条规则都注明来源。** 每个部分都有一个依据文件，区分期刊规定、已发表的研究、构建 skill 时实际测得的内容，以及本 skill 自己的选择。研究结论不一致时，文件会直接说明。本 skill 不承诺更多引用，也不承诺被接收。
-- **规则可以运行。** 19 个脚本检查一切可以检查的内容：用 Crossref 和 arXiv 核对不存在的参考文献、渲染后图中重叠的标签、摘要里有而正文里没有的数字、没有被引用的补充图，以及在“润色”句子时改动了数字的编辑。200 多个植入缺陷的用例检验这些脚本。
+- **规则可以运行。** 20 个脚本检查一切可以检查的内容：用 Crossref 和 arXiv 核对不存在的参考文献、渲染后图中重叠的标签、摘要里有而正文里没有的数字、没有被引用的补充图，以及在“润色”句子时改动了数字的编辑。200 多个植入缺陷的用例检验这些脚本。
 - **对 AI 的使用保持诚实。** prose 部分不是靠替换词语，而是追问每个句子究竟主张了什么，以此去除机器腔调；它不对任何 AI 检测器作出承诺。submit 部分会按期刊要求起草 AI 使用声明，由作者确认。
 
 ## 原则
@@ -113,7 +113,7 @@ skill 由一个入口文件和 20 个部分组成，每次只读取其中一个�
 
 ## 脚本
 
-全部位于 `skills/complete-paper/scripts/`，清单见其中的 `README.md`。用于文本的 16 个脚本只依赖标准库；用于绘图的 3 个脚本需要 matplotlib 和 numpy。
+全部位于 `skills/complete-paper/scripts/`，清单见其中的 `README.md`。用于文本的 17 个脚本只依赖标准库；用于绘图的 3 个脚本需要 matplotlib 和 numpy。
 
 | 脚本 | 检查内容 |
 |---|---|

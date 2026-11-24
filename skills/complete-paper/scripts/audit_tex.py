@@ -525,7 +525,68 @@ def opener_spans(text):
     return out
 
 
-def check_xrefs(doc, other_labels=frozenset(), other_given=False):
+# "Fig. 2", "Figs. 2 and 3", "Figs. 2a,b and 4", "Figs. 2-4", "Table II": numbers typed without \ref, as in text
+# converted from Word; cite_order.py reads them too
+TYPED_NUM = r"(?:\d+|[IVXL]+\b)(?:[a-z](?![a-z])(?:\s*(?:,|--?|\u2013)\s*[a-z](?![a-z]))*)?"
+TYPED_RE = re.compile(r"(?<![A-Za-z\\])(Figs?\.|Figures?|Tables?|Tabs?\.)(?:\s|~)*(" + TYPED_NUM
+                      + r"(?:(?:\s|~)*(?:,\s*and|,|and|&|or|to|--?|\u2013|\u2014)(?:\s|~)*" + TYPED_NUM + r")*)")
+NOT_MAIN_RE = re.compile(r"(?:Supplement(?:al|ary)|Supporting|Extended\s+Data|Suppl?\.)\s*$", re.I)
+ROMAN_VALUE = {"I": 1, "V": 5, "X": 10, "L": 50}
+
+
+def typed_number(s):
+    if s.isdigit():
+        return int(s)
+    total, prev = 0, 0
+    for c in reversed(s):
+        v = ROMAN_VALUE.get(c, 0)
+        total += -v if v < prev else v
+        prev = max(prev, v)
+    return total
+
+
+def typed_mentions(text, R):
+    """(offset, kind, number) of every figure and table number typed in the running text, ranges expanded;
+    "Extended Data Fig. 1" and "Supplementary Table 2" are left out."""
+    t = blank_math(text)
+    t = blank_spans(t, R.bib + [(0, R.doc_start), (R.doc_end, len(t))])
+    out = []
+    for m in TYPED_RE.finditer(t):
+        if NOT_MAIN_RE.search(t[max(0, m.start() - 22):m.start()]):
+            continue
+        kind = "table" if m.group(1).lower().startswith("tab") else "figure"
+        nums, prev, span = [], None, False
+        # a dash or "to" before a number is a range; before a letter it joins panels ("2a-c")
+        for tok in re.finditer(r"(\d+|[IVXL]+)|(?:--?|\u2013|\u2014|\bto\b)(?=(?:\s|~)*(?:\d|[IVXL]))", m.group(2)):
+            if tok.group(1) is None:
+                span = True
+                continue
+            s = tok.group(1)
+            if kind == "figure" and not s.isdigit():
+                continue
+            n = typed_number(s)
+            if span and prev is not None and 0 < n - prev <= 50:
+                nums += list(range(prev + 1, n + 1))
+            else:
+                nums.append(n)
+            prev, span = n, False
+        out += [(m.start(), kind, n) for n in nums]
+    return out
+
+
+def float_labels(text, labels):
+    """{'figure': [...], 'table': [...]}: the label of each float in its order of appearance (None without one)."""
+    order = {"figure": [], "table": []}
+    rx = re.compile(r"\\begin\s*\{(%s)\}" % "|".join(re.escape(e) for e in sorted(FLOAT_KIND, key=len, reverse=True)))
+    for m in rx.finditer(text):
+        kind = FLOAT_KIND[m.group(1)]
+        end = text.find("\\end{%s}" % m.group(1), m.end())
+        end = end if end >= 0 else len(text)
+        order[kind].append(next((k for k, kd, o in labels if kd == kind and m.end() <= o < end), None))
+    return order
+
+
+def check_xrefs(doc, other_labels=frozenset(), other_given=False, typed=True):
     out = []
     text = doc.text
     R = Regions(text)
@@ -553,6 +614,20 @@ def check_xrefs(doc, other_labels=frozenset(), other_given=False):
             ahead = any(a <= m.start() < b and b <= label_off.get(key, -1) < e for a, b, e in openers)
             if not inside_float and not ahead and key not in first_eq:
                 first_eq[key] = m.start()
+    counted = 0
+    if typed:                                            # "Fig. 2" typed as text counts as a citation of Fig. 2
+        order = float_labels(text, labels)
+        for o, kind, n in typed_mentions(text, R):
+            key = order[kind][n - 1] if 0 < n <= len(order[kind]) else None
+            if key is None:
+                continue
+            counted += 1
+            any_ref.add(key)
+            if not any(a <= o < b for a, b in R.floats):
+                first_out[key] = min(first_out.get(key, o), o)
+    if counted:
+        out.append(Finding("xrefs", "INFO", doc.where(0), "%d figure or table number(s) typed as text, without \\ref, "
+                           "counted as citations" % counted))
     if external:
         out.append(Finding("xrefs", "INFO", doc.where(0), "%d reference(s) into another document through xr; "
                            "pass --supp to check them" % external))
@@ -1316,7 +1391,8 @@ def run(args):
         if "refs" in checks:
             f += check_refs(doc, args.author_year)
         if "xrefs" in checks:
-            f += check_xrefs(doc, supp_labels if not is_supp else main_labels, other_given=supp is not None)
+            # in a supplement, a typed "Fig. 2" usually means the main text's figure, so it is not read there
+            f += check_xrefs(doc, supp_labels if not is_supp else main_labels, other_given=supp is not None, typed=not is_supp)
         if "abbrev" in checks:
             f += check_abbrev(doc, known, "supplement " if is_supp else "")
         if "numbers" in checks and not is_supp:

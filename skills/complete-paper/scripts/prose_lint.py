@@ -254,17 +254,22 @@ def lint(lines, is_tex, opts):
                 short = h.group(2).rstrip("s")
                 initials = "".join(w[0] for w in re.split(r"[\s\-]+", h.group(1).strip()) if w).upper()
                 if len(short) >= 2 and short.isupper() and short in initials + "".join(c for c in h.group(1) if c.isupper()):
-                    abbr_def.setdefault(short, []).append(at)
+                    abbr_def.setdefault(short, []).append((at, bool(re.match(r"abstract$", section, re.I))))
             for h in re.finditer(r"(?<![A-Za-z(])([A-Z]{2,6})s?(?![A-Za-z])", sent):
                 if h.group(1) not in ("MATH", "CITE", "REF"):
                     abbr_use[h.group(1)].append(at)
     # ----- abbreviations
-    order = {}
-    for short, places in abbr_def.items():
-        if len(places) > 1:
-            hits["abbrev"].append((places[1], f"{short} is defined {len(places)} times ({', '.join(places[:3])}): define it once in the text"))
+    # The abstract and the main text each define an abbreviation once (ground rule 5 of SKILL.md), so a definition
+    # in the abstract does not count against the one in the text.
+    for short, defs in abbr_def.items():
+        places = [at for at, _ in defs]
+        for scope in (True, False):
+            mine = [at for at, in_abstract in defs if in_abstract == scope]
+            if len(mine) > 1:
+                where_ = "in the abstract" if scope else "in the text"
+                hits["abbrev"].append((mine[1], f"{short} is defined {len(mine)} times {where_} ({', '.join(mine[:3])}): "
+                                                f"define it once {where_}"))
         uses = abbr_use.get(short, [])
-        order[short] = places[0]
         if len(uses) < 3:
             hits["abbrev"].append((places[0], f"{short} is defined and then used {len(uses)} time(s): write it out"))
     # ----- spelling variety

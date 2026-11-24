@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Added
+- `scripts/docx_to_tex.py` makes a LaTeX reading copy of a Word manuscript, so that the other scripts can check it. Superscript citation numbers become `\cite` (ranges expanded, exponents such as 10^5 kept), the numbered reference list becomes `thebibliography`, Heading styles and short bold lines become sections, numbered equation tables become labeled equations, "Fig. N |" legends become figure floats, and Extended Data legends are kept apart from the main figures. It prints what it read and what it could not, and will not overwrite a `.tex` file it did not write. Standard library only; the tests build an invented `.docx` with `zipfile` (`tests/fixtures/word/make_docx.py`).
+- The route for a Word manuscript in `parts/audit.md` ("A Word manuscript") and in "How to start" of `SKILL.md`: convert, run the scripts on the copy, check each finding against the Word text.
+
+### Fixed
+These came up when the skill audited a real Word manuscript on 2026-11-24.
+- `audit.py` flags a statement left ending in an ellipsis ("publicly available via …") and figure or table numbers left as "Fig. X", "Supplementary Fig. X" or "Table X". "Table X" is not flagged where ten or more tables make it the tenth table in Roman numbering.
+- `audit_tex.py --checks xrefs` reported every figure as never cited when the text types "Fig. 1" without `\ref`, as text from Word does. Typed figure and table numbers now count as citations, with lists and ranges ("Figs. 2 and 3", "Figs. 5–6"); "Extended Data Fig. 4" and "Supplementary Fig. 4" do not count as main figures, and a panel range ("Fig. 1a–c") is not a figure range. In a supplement, typed numbers are not read, since they usually point to the main text.
+- `prose_lint.py` said an abbreviation is "defined 2 times" when it is defined once in the abstract and once in the main text, as ground rule 5 requires. The abstract and the text are now counted apart.
+
 ## [0.1.0] - 2026-11-24
 
 ### Added

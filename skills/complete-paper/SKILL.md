@@ -164,6 +164,7 @@ Facts that repeat from paper to paper are saved once and reused: the user's name
 ## How to start
 
 1. Find the manuscript and `paper-state/`. The manuscript is usually the `.tex` file that contains `\documentclass`, or a `.md` or `.docx` file. If `paper-state/progress.md` exists, read it and continue from it.
+   - **A `.docx` file**: the scripts read LaTeX, so make a reading copy with `python <skill-dir>/scripts/docx_to_tex.py manuscript.docx -o paper-state/manuscript_copy.tex` and run the scripts on the copy. Check each finding against the Word text before reporting it, and make or propose every change in the Word file, never in the copy (`parts/audit.md`, "A Word manuscript").
 2. If `paper-state/intake.md` does not exist, copy [assets/intake.md](assets/intake.md) there, fill in what `~/.complete-paper/defaults.md` covers (see "Saved defaults"), and ask the authors to confirm those fields and fill in the rest. Do not wait for it: continue with what is available, and leave TODO markers wherever a part needs a blank field.
 3. Decide the scope from the request:
    - **Whole paper** ("write this up as a paper"): run the parts in table order. After each stage, show the user what was produced and ask before starting the next stage.
@@ -191,7 +192,7 @@ A part may open with a short statement of its purpose after the header line, and
 
 ## Scripts
 
-Nineteen Python 3 scripts live in `scripts/` in this skill's directory, listed with what each checks in [scripts/README.md](scripts/README.md). Each part names the scripts it runs, with the command, so open the list only when you need a script that no part has named.
+Twenty Python 3 scripts live in `scripts/` in this skill's directory, listed with what each checks in [scripts/README.md](scripts/README.md). Each part names the scripts it runs, with the command, so open the list only when you need a script that no part has named.
 
 - **Where to run.** Run every command from the user's project folder, where the manuscript and `paper-state/` are, and call the script by its path in this skill's directory: `python <skill-dir>/scripts/audit.py main.tex --brief paper-state/brief.md`. In the parts, `scripts/...` means that path, and every other path is relative to the project folder.
 - Run a script with `--help` before its first use. The scripts find problems; you still read the flagged lines before reporting them.

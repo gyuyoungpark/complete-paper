@@ -701,6 +701,210 @@ class FinishScripts(unittest.TestCase):
         self.assertNotIn("house rules", proc.stdout.split("## Blocking", 1)[1].split("##", 1)[0])
 
 
+sys.path.insert(0, os.path.join(FIX, "word"))
+import make_docx  # noqa: E402  (writes invented .docx files with zipfile)
+
+
+def read(p):
+    with open(p, encoding="utf-8") as fh:
+        return fh.read()
+
+
+def write(d, name, text):
+    p = os.path.join(d, name)
+    with open(p, "w", encoding="utf-8") as fh:
+        fh.write(text)
+    return p
+
+
+class DocxToTex(unittest.TestCase):
+    """scripts/docx_to_tex.py on an invented Word letter (tests/fixtures/word/make_docx.py), and the scripts on its copy."""
+
+    @classmethod
+    def setUpClass(cls):
+        import tempfile
+        cls.tmp = tempfile.TemporaryDirectory()
+        cls.docx = os.path.join(cls.tmp.name, "letter.docx")
+        make_docx.build(cls.docx, make_docx.example())
+        cls.tex = os.path.join(cls.tmp.name, "letter_copy.tex")
+        cls.code, cls.out = run_script("docx_to_tex.py", cls.docx, "-o", cls.tex)
+        with open(cls.tex, encoding="utf-8") as fh:
+            cls.t = fh.read()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def test_runs(self):
+        self.assertEqual(self.code, 0, self.out)
+        self.assertTrue(self.t.startswith("% Reading copy of letter.docx"))
+
+    def test_front_and_headings(self):
+        for line in ("\\title{Damping of spin waves in narrow permalloy strips}",
+                     "\\author{A. Writer\\textsuperscript{1}, B. Coauthor\\textsuperscript{1,2}}",
+                     "\\affiliation{\\textsuperscript{2}Department of Examples, Sample University}",
+                     "\\begin{abstract}", "\\section{Introduction}", "\\section{Results}",
+                     "\\subsection{Edge damping in narrow strips}", "\\section{Methods}", "\\section*{Data availability}",
+                     "\\section*{Figure legends}"):
+            self.assertIn(line, self.t)
+        self.assertNotIn("References", self.t, "the reference heading becomes thebibliography")
+
+    def test_citations_and_exponents(self):
+        for cite in ("damping\\cite{r1,r2}", "often\\cite{r3,r4,r5}", "less often\\cite{r6,r7}"):
+            self.assertIn(cite, self.t)
+        for exponent in ("10\\textsuperscript{5}", "4 \u00b5m\\textsuperscript{2}", "A m\\textsuperscript{\u22122}"):
+            self.assertIn(exponent, self.t)
+        self.assertIn("runs\\textsuperscript{9}", self.t)
+        self.assertIn("outside the reference list stay superscripts: 9", self.out)
+
+    def test_references(self):
+        keys = [line.split("}")[0] for line in self.t.split("\\bibitem{")[1:]]
+        self.assertEqual(keys, ["r%d" % k for k in range(1, 8)])
+        self.assertIn("\\bibitem{r3} C. Third, J. Invented Phys. 3, 3 (2019).", self.t)
+
+    def test_equations(self):
+        self.assertIn("\\begin{equation}\n{\u0394H}_{0} + \u03b1f\n\\label{eq:1}\n\\end{equation}", self.t)
+        self.assertIn("\\label{eq:2}", self.t)
+        self.assertIn("Eqs.~(\\ref{eq:1}) and (\\ref{eq:2})", self.t)
+        self.assertIn("Eq. (3) is cited", self.t, "a number with no equation stays as typed")
+        self.assertIn("no numbered equation of that number: 3", self.out)
+
+    def test_legends(self):
+        figs = self.t.split("\\begin{figure}")[1:]
+        self.assertEqual(len(figs), 2)
+        self.assertIn("\\caption{Linewidth against frequency. a, Linewidth of a 500 nm strip.", figs[0])
+        self.assertIn("\\label{fig:1}", figs[0], "floats follow their numbers, not the order of the legends")
+        self.assertIn("\\label{fig:2}", figs[1])
+        self.assertIn("legends stand in the order 2, 1", self.out)
+        self.assertEqual(self.t.count("\\begin{extdata}"), 2)
+        self.assertIn("\\label{tab:1}\n\\begin{tabular}{ll}\n\\toprule\nWidth (nm) & Thickness (nm) \\\\\n\\midrule", self.t)
+        self.assertNotIn("\nFigure 2\n", self.t, "the line where an image stands is left out")
+        self.assertNotIn("{Extended Data 1}", self.t, "so is 'Extended Data 1' without 'Fig.'")
+        self.assertIn("Extended Data Fig. 2.", self.t, "mentions stay as typed")
+
+    def test_escapes_and_left_out(self):
+        for s in ("40\\%", "sample \\#3", "R\\&D", "run\\_07", "\\{a\\}"):
+            self.assertIn(s, self.t)
+        self.assertNotIn("deleted clause", self.t)
+        self.assertNotIn("hidden note", self.t)
+
+    def test_scripts_read_the_copy(self):
+        code, out = run_script("cite_order.py", self.tex)
+        self.assertIn("0 error(s), 0 warning(s)", out)
+        self.assertEqual(len([l for l in out.splitlines() if l.strip().startswith("Fig. ")]), 2,
+                         "Extended Data figures are not main figures, and 'Extended Data Fig. 2' does not cite Fig. 2")
+        code, out = run_script("ref_check.py", self.tex)
+        self.assertIn("0 error(s), 0 warning(s)", out)
+        self.assertIn("keys cited 7 | entries 7", out)
+        code, out = run_script("table_check.py", self.tex)
+        self.assertIn("0 error(s), 0 warning(s)", out)
+        _, f = audit(self.tex, "--checks", "xrefs")
+        self.assertFalse(any(x["severity"] == "CRITICAL" for x in f), [x["message"] for x in f])
+        proc = subprocess.run([sys.executable, os.path.join(SCRIPTS, "audit.py"), self.tex, "--skip", "equations", "citations",
+                               "captions", "tables", "references", "prose", "house rules", "abstract", "duplication"],
+                              capture_output=True, text=True, encoding="utf-8")
+        self.assertIn("an unfinished statement, ending in an ellipsis", proc.stdout)
+
+    def test_word_numbering_and_results_heading(self):
+        """References numbered by Word's own list, and a draft with no Results heading."""
+        p, b, sup = make_docx.p, make_docx.b, make_docx.sup
+        blocks = [p("A short title", style="Title"), p("C. Author"),
+                  p("Introduction", style="Heading1"), p("Strips guide spin waves", sup("1"), " and films damp them", sup("2"), "."),
+                  p(b("Edge damping")), p("The edges add damping in every strip that we measure here."),
+                  p(b("Discussion")), p("The edge term sets the length of a waveguide."),
+                  p(b("References")), p("A. First, J. Invented Phys. 1, 1 (2020).", numbered=True),
+                  p("B. Second, J. Invented Phys. 2, 2 (2021).", numbered=True)]
+        docx = os.path.join(self.tmp.name, "noresults.docx")
+        make_docx.build(docx, blocks)
+        tex = os.path.join(self.tmp.name, "noresults.tex")
+        code, out = run_script("docx_to_tex.py", docx, "-o", tex)
+        self.assertEqual(code, 0, out)
+        self.assertIn("no Results heading", out)
+        t = read(tex)
+        self.assertIn("\\bibitem{r2} B. Second", t)
+        self.assertIn("spin waves\\cite{r1}", t)
+        self.assertNotIn("\\section{Results}", t)
+        run_script("docx_to_tex.py", docx, "-o", tex, "--add-results")
+        t = read(tex)
+        self.assertLess(t.index("\\section{Results}"), t.index("\\subsection{Edge damping}"))
+        self.assertLess(t.index("\\section{Introduction}"), t.index("\\section{Results}"))
+
+    def test_will_not_overwrite_a_source(self):
+        p = write(self.tmp.name, "letter_source.tex", "\\documentclass{article}\n")
+        code, out = run_script("docx_to_tex.py", self.docx, "-o", p)
+        self.assertNotEqual(code, 0)
+        self.assertEqual(read(p), "\\documentclass{article}\n")
+
+
+class AuditTypedMentions(unittest.TestCase):
+    """audit_tex.py --checks xrefs counts figure and table numbers typed as text, as Word-derived text has them."""
+
+    TEX = ("\\documentclass{article}\n\\begin{document}\n\\section{Results}\n"
+           "The map is in Fig. 2 and Extended Data Fig. 4.\n"
+           "Switching is shown in Fig. 1a\u2013c and 5, and the rates in Table I.\n"
+           "The long runs are in Figs. 5\u20136, with more in Supplementary Fig. 4 and Supplementary Fig. 3.\n"
+           + "".join("\\begin{figure}\\caption{Panel %d.}\\label{fig:%s}\\end{figure}\n" % (k, c) for k, c in enumerate("abcdef", 1))
+           + "\\begin{table}\\caption{Rates.}\\label{tab:rates}\\end{table}\n\\end{document}\n")
+
+    def test_typed_mentions(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            _, f = audit(write(d, "typed.tex", self.TEX), "--checks", "xrefs")
+        never = sorted(x["message"].split("'")[1] for x in f if "never cited" in x["message"])
+        self.assertEqual(never, ["fig:c", "fig:d"], "a panel range is not a figure range; Extended Data and "
+                                                     "Supplementary figures are not main figures")
+        self.assertTrue(has(f, "xrefs", "CRITICAL", "Fig. 2 ('fig:b') is first cited here, before Fig. 1"))
+        self.assertTrue(has(f, "xrefs", "INFO", "6 figure or table number(s) typed as text"))
+
+
+class AuditWordPlaceholders(unittest.TestCase):
+    """audit.py: a statement left ending in an ellipsis, and figure or table numbers left as X."""
+    SKIP = ["--skip", "equations", "citations", "captions", "tables", "references", "prose", "house rules", "abstract", "duplication"]
+
+    def cross(self, tex):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            proc = subprocess.run([sys.executable, os.path.join(SCRIPTS, "audit.py"), write(d, "main.tex", tex)] + self.SKIP,
+                                  capture_output=True, text=True, encoding="utf-8")
+        return [l for l in proc.stdout.splitlines() if l.startswith("- main.tex:")]
+
+    def test_planted(self):
+        found = self.cross("\\documentclass{article}\n\\begin{document}\n\\section{Results}\n"
+                           "More runs are in Supplementary Fig.~X.\n"
+                           "The rates are listed in Table X.\n"
+                           "The states $1, \\ldots, N$ are counted, and the labels a, b, ... and c are kept.\n"
+                           "Materials such as Co, Fe, ...\nand their alloys are used.\n"
+                           "\\section*{Data availability}\nThe data are publicly available via \\ldots\n"
+                           "\\section*{Code availability}\nThe code is at ... . It runs on one core.\n\\end{document}\n")
+        self.assertEqual(sum("left as a placeholder (\"Supplementary Fig. X\")" in l for l in found), 1, found)
+        self.assertEqual(sum("left as a placeholder (\"Table X\")" in l for l in found), 1, found)
+        self.assertEqual([l.split(":")[1] for l in found if "ellipsis" in l], ["10", "12"], found)
+        self.assertEqual(len(found), 4, found)
+
+    def test_roman_table_ten(self):
+        """Where tables are numbered I, II, ..., "Table X" is the tenth table."""
+        tables = "".join("\\begin{table}\\caption{T.}\\end{table}\n" for _ in range(10))
+        found = self.cross("\\documentclass{article}\n\\begin{document}\nThe last rates are in Table X.\n" + tables + "\\end{document}\n")
+        self.assertEqual(found, [])
+
+
+class ProseLintAbbrevAbstract(unittest.TestCase):
+    """Ground rule 5: the abstract and the main text each define an abbreviation once."""
+
+    def test_abstract_definition_is_not_a_repeat(self):
+        import tempfile
+        tex = ("\\documentclass{article}\n\\begin{document}\n\\begin{abstract}\n"
+               "We switch a magnetic tunnel junction (MTJ) with a short pulse of current in a thin film here.\n\\end{abstract}\n"
+               "\\section{Introduction}\nA magnetic tunnel junction (MTJ) stores one bit in a thin film of iron. "
+               "The MTJ is read by its resistance in this work. Each MTJ is written by a pulse of current in this work.\n\n"
+               "A spin-orbit torque (SOT) switches the free layer of the film here. The spin-orbit torque (SOT) needs no field "
+               "in this geometry. The SOT is strong in heavy metals such as platinum here.\n\\end{document}\n")
+        with tempfile.TemporaryDirectory() as d:
+            _, out = run_script("prose_lint.py", write(d, "abbr.tex", tex), "--only", "abbrev", "--show", "0")
+        self.assertNotIn("MTJ is defined 2", out)
+        self.assertIn("SOT is defined 2 times in the text", out)
+
+
 @unittest.skipUnless(os.environ.get("CP_NETWORK") == "1", "set CP_NETWORK=1 to run network tests")
 class VerifyRefsOnline(unittest.TestCase):
     def test_bib(self):

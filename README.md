@@ -63,7 +63,7 @@ Installed as a plugin, the skill is called as `/complete-paper:complete-paper`; 
 
 **Updating**: installs made with the skills CLI update with `npx skills update`. Plugin installs update with `/plugin marketplace update complete-paper`, or turn on auto-update for this marketplace under `/plugin`. In the Claude app, upload the `complete-paper.skill` of the new release.
 
-Requirements: Python 3.9 or later. The figure scripts need matplotlib and numpy. `ref_check.py --online` needs network access. `submit_check.py` uses `pdflatex` and the poppler tools when they are installed. The scripts read LaTeX sources.
+Requirements: Python 3.9 or later. The figure scripts need matplotlib and numpy. `ref_check.py --online` needs network access. `submit_check.py` uses `pdflatex` and the poppler tools when they are installed. The scripts read LaTeX sources; for a Word manuscript, `docx_to_tex.py` makes a LaTeX reading copy for them to check.
 
 ## First run
 
@@ -85,7 +85,7 @@ There is nothing to sign up for and no API key. The skill keeps its working file
 
 - **One claim sheet for the whole paper.** `brief.md` records the result, the system, the kind of evidence and what the paper does not show. Title, abstract, captions and conclusion are all written from it, so they cannot claim different things, and none can claim more than the figures show.
 - **Every rule says where it comes from.** Each part has an evidence file that separates journal rules, published studies, what was measured while building the skill, and the skill's own choices. Where studies disagree, it says so. Nothing here promises more citations or an acceptance.
-- **Rules that run.** Nineteen scripts check what can be checked: phantom references against Crossref and arXiv, overlapping labels in a rendered figure, a number in the abstract that the body does not contain, a supplementary figure nobody cites, an edit that changed a number while "polishing" a sentence. Over 200 planted-fault cases test the scripts.
+- **Rules that run.** Twenty scripts check what can be checked: phantom references against Crossref and arXiv, overlapping labels in a rendered figure, a number in the abstract that the body does not contain, a supplementary figure nobody cites, an edit that changed a number while "polishing" a sentence. Over 200 planted-fault cases test the scripts.
 - **Honest about AI.** The prose part removes machine tone by asking what each sentence claims, not by swapping words, and promises nothing about detectors. The submit part drafts the AI-use statement your venue requires, for you to confirm.
 
 ## Principles
@@ -113,7 +113,7 @@ The order is the order of writing: the parts that summarize (conclusion, introdu
 
 ## Scripts
 
-All live in `skills/complete-paper/scripts/`, listed in its `README.md`. The sixteen for text use only the standard library; the three for figures need matplotlib and numpy.
+All live in `skills/complete-paper/scripts/`, listed in its `README.md`. The seventeen for text use only the standard library; the three for figures need matplotlib and numpy.
 
 | Script | What it checks |
 |---|---|

@@ -63,7 +63,7 @@ Plugin으로 설치하면 `/complete-paper:complete-paper`, skills CLI로 설치
 
 **업데이트**: skills CLI로 설치했다면 `npx skills update`를 실행합니다. Plugin으로 설치했다면 `/plugin marketplace update complete-paper`를 실행하거나, `/plugin`에서 이 marketplace의 자동 업데이트를 켭니다. Claude 앱에서는 새 release의 `complete-paper.skill`을 다시 올립니다.
 
-필요한 것: Python 3.9 이상. 그림 script에는 matplotlib과 numpy가 필요합니다. `ref_check.py --online`은 인터넷 연결이 필요합니다. `submit_check.py`는 설치되어 있으면 `pdflatex`와 poppler 도구를 씁니다. Script는 LaTeX 원고를 읽습니다.
+필요한 것: Python 3.9 이상. 그림 script에는 matplotlib과 numpy가 필요합니다. `ref_check.py --online`은 인터넷 연결이 필요합니다. `submit_check.py`는 설치되어 있으면 `pdflatex`와 poppler 도구를 씁니다. Script는 LaTeX 원고를 읽습니다. Word 원고는 `docx_to_tex.py`가 만든 LaTeX 읽기용 사본으로 점검합니다.
 
 ## 처음 써 보기
 
@@ -85,7 +85,7 @@ Audit 모드에서는 보고만 하고 원고를 고치지 않으며, 어떤 항
 
 - **논문 전체에 claim sheet가 하나입니다.** `brief.md`에 결과, 시스템, 증거의 종류, 논문이 보이지 않은 것을 적어 둡니다. 제목, 초록, caption, 결론이 모두 이것을 보고 쓰이므로 서로 다른 주장을 할 수 없고, 그림이 보인 것보다 많이 주장할 수도 없습니다.
 - **모든 규칙에 출처가 있습니다.** 부분마다 근거 파일이 있어 저널 규정, 발표된 연구, skill을 만들며 직접 측정한 것, skill 자체의 선택을 구분합니다. 연구 결과가 서로 엇갈리면 그렇다고 적습니다. 인용 수 증가나 게재를 약속하지 않습니다.
-- **규칙이 실행됩니다.** Script 19개가 점검할 수 있는 것을 점검합니다. Crossref와 arXiv로 존재하지 않는 참고문헌을 찾고, 그려진 그림 안의 겹친 라벨, 초록에는 있지만 본문에는 없는 숫자, 아무도 인용하지 않는 보충 그림, 문장을 "다듬다가" 숫자를 바꾼 편집을 찾습니다. 결함을 심은 사례 200여 개로 이 script들을 시험합니다.
+- **규칙이 실행됩니다.** Script 20개가 점검할 수 있는 것을 점검합니다. Crossref와 arXiv로 존재하지 않는 참고문헌을 찾고, 그려진 그림 안의 겹친 라벨, 초록에는 있지만 본문에는 없는 숫자, 아무도 인용하지 않는 보충 그림, 문장을 "다듬다가" 숫자를 바꾼 편집을 찾습니다. 결함을 심은 사례 200여 개로 이 script들을 시험합니다.
 - **AI 사용에 정직합니다.** Prose 부분은 단어를 바꾸는 대신 문장마다 무엇을 주장하는지 물어서 기계 문체를 없애고, AI 탐지기에 대해서는 아무것도 약속하지 않습니다. Submit 부분은 저널이 요구하는 AI 사용 고지의 초안을 만들고, 저자가 확인합니다.
 
 ## 원칙
@@ -113,7 +113,7 @@ Skill은 진입 파일 하나와 부분 20개로 되어 있고, 한 번에 한 �
 
 ## Script
 
-모두 `skills/complete-paper/scripts/`에 있고, 목록은 그 폴더의 `README.md`에 있습니다. 문서용 16개는 표준 라이브러리만 쓰고, 그림용 3개는 matplotlib과 numpy가 필요합니다.
+모두 `skills/complete-paper/scripts/`에 있고, 목록은 그 폴더의 `README.md`에 있습니다. 문서용 17개는 표준 라이브러리만 쓰고, 그림용 3개는 matplotlib과 numpy가 필요합니다.
 
 | Script | 점검하는 것 |
 |---|---|

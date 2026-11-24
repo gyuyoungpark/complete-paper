@@ -26,7 +26,8 @@ Part checks (each is the script of one part, run on the final files):
                                    (ground rules 7 and 10 to 15 of SKILL.md; a finding to review, never a failure)
 
 Cross-checks made here:
-  placeholders   TODO, ??, [CITE], lorem ipsum, example images, coloured or struck-out text left in
+  placeholders   TODO, ??, [CITE], lorem ipsum, example images, coloured or struck-out text left in; a statement that
+                 ends in an ellipsis ("publicly available via ..."); "Fig. X", "Supplementary Fig. X", "Table X"
   compile log    undefined references and citations, labels defined twice (reads main.log if present)
   numbers        a number in the abstract or the conclusion that the rest of the text does not contain
   sentences      sentences of more than 30 words in the abstract and the conclusion
@@ -55,6 +56,11 @@ PLACEHOLDER = [(r"\?\?", "\"??\" (an unresolved reference)"), (r"\b(?:TODO|TBD|F
                (r"\\(?:todo|hl|sout|added|deleted|replaced)\s*[\[{]", "an editing command"), (r"\\textcolor\s*\{(?:red|blue|magenta)\}", "coloured text"),
                (r"example-image", "a placeholder image"), (r"\[?[Pp]laceholder\b", "the word \"placeholder\""),
                (r"citation\s+needed|\bto\s+be\s+(?:added|written)\s+(?:later|here|soon)|insert\s+\w+\s+here", "an unfinished passage")]
+# read on the text with mathematics masked, so that "1, ..., N" in a formula is not taken for a gap
+ELLIPSIS_MID = re.compile(r"(?:…|\.\.\.)\s*[.;]\s")                 # "available via .... The code"
+ELLIPSIS_END = re.compile(r"(?:…|\.\.\.)[\s.;:)\]]*$")              # "publicly available via ..." at the end of a line
+NUMBER_LEFT = re.compile(r"(?<![A-Za-z])(?P<item>(?:Supplementary|Extended\s+Data)\s+(?:Figs?\.?|Figures?|Tables?|Notes?)|Figs?\.?|Figures?|Tables?)"
+                         r"\s*(?:S\s?)?(?P<n>XX?|x)(?![A-Za-z0-9])")                           # "Fig. X", "Supplementary Table X"
 STATEMENTS = {
     "data": r"data\s+(?:and\s+(?:code|materials)\s+)?availability|availability\s+of\s+data|\bdata\b[^.]{0,120}?\b(?:are|is|will\s+be|have\s+been)\s+"
             r"(?:made\s+)?(?:openly\s+|publicly\s+|freely\s+)?(?:available|deposited)\b|no\s+data\s+were\s+(?:created|generated|analy[sz]ed)",
@@ -143,6 +149,27 @@ def raw_section(raw, title):
     return raw[m.end():m.end() + nxt.start()] if nxt else raw[m.end():]
 
 
+def masked_lines(raw):
+    """The source with mathematics and the bibliography blanked, line for line; \\ldots written as an ellipsis."""
+    blank = lambda m: re.sub(r"[^\n]", " ", m.group(0))
+    t = re.sub(r"\\begin\{(equation|align|gather|multline|eqnarray|displaymath|math|thebibliography)\*?\}.*?\\end\{\1\*?\}",
+               blank, raw, flags=re.S)
+    t = re.sub(r"\$\$.*?\$\$|\\\[.*?\\\]|\\\(.*?\\\)|(?<!\\)\$[^$]*(?<!\\)\$", blank, t, flags=re.S)
+    t = re.sub(r"\\(?:l|text)?dots\b(?:\{\})?|\\textellipsis\b(?:\{\})?", "\u2026", t)
+    return t.replace("~", " ").split("\n")
+
+
+def unfinished(plain, k):
+    """Whether line k ends a statement with an ellipsis; a sentence that goes on in lower case on the next line
+    ("Co, Fe, ..." / "and their alloys") is a list, not a gap."""
+    if ELLIPSIS_MID.search(plain[k]):
+        return True
+    if not ELLIPSIS_END.search(plain[k]):
+        return False
+    following = next((x.strip() for x in plain[k + 1:] if x.strip()), "")
+    return not re.match(r"[a-z(,]", following)
+
+
 def cross_checks(lines, opts):
     found = []
 
@@ -152,11 +179,22 @@ def cross_checks(lines, opts):
     raw = "\n".join(t for _, _, t in lines)
     body_start = raw.find("\\begin{document}")
     # ----- placeholders
-    for name, n, line in lines:
+    plain = masked_lines(raw)
+    tables = len(re.findall(r"\\begin\{(?:table|sidewaystable)\*?\}", raw))
+    for k, (name, n, line) in enumerate(lines):
         for pattern, what in PLACEHOLDER:
             if re.search(pattern, line, re.I if "lorem" in pattern or "laceholder" in pattern else 0):
                 add("E", f"{name}:{n}", f"{what} is left in the text: \"{line.strip()[:70]}\"")
                 break
+        else:
+            text = plain[k] if k < len(plain) else ""
+            left = [m for m in NUMBER_LEFT.finditer(text)          # "Table X" is Table 10 where tables are numbered I, II, ...
+                    if not (m.group("item").lower().startswith("tab") and len(m.group("n")) * 10 <= tables)]
+            if left:
+                add("E", f"{name}:{n}", f"a figure or table number left as a placeholder (\"{' '.join(left[0].group(0).split())}\"): "
+                                        f"\"{line.strip()[:70]}\"")
+            elif unfinished(plain, k):
+                add("E", f"{name}:{n}", f"an unfinished statement, ending in an ellipsis, is left in the text: \"{line.strip()[:70]}\"")
     # ----- the compile log
     log = os.path.splitext(opts.main)[0] + ".log"
     if os.path.isfile(log):

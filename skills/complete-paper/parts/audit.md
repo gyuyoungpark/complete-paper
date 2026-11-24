@@ -29,6 +29,27 @@ Audit the files that will be sent, not an earlier copy.
 
 ## Steps
 
+### A Word manuscript
+
+The scripts read LaTeX. For a `.docx`, make a reading copy and run the scripts on it:
+
+```
+python scripts/docx_to_tex.py manuscript.docx -o paper-state/manuscript_copy.tex
+python scripts/audit.py paper-state/manuscript_copy.tex --require data competing contributions ai --report paper-state/audit.md
+```
+
+1. Read what the converter prints first: the title, the counts of headings, citations, references, equations and legends, and its notes. A count that is wrong (a heading missed, no reference list found) makes later findings wrong; fix the reading before the audit.
+2. Check each finding against the Word text before reporting it, and give its place in the Word file (section and sentence), not the line of the copy.
+3. Make or propose every fix in the Word file. Never edit the copy; make it again after the fixes.
+
+What to know about the copy:
+
+- Superscript numbers became citations. A superscript read as an exponent, or one outside the reference list, stays a superscript and is listed in the notes.
+- Figure and table numbers stay typed ("Fig. 2"), as in Word. `cite_order.py` and `audit_tex.py` count them; the note of `cite_order.py` on numbers typed by hand does not apply.
+- "Extended Data" and "Supplementary" legends are kept apart and are not counted as main display items.
+- There is no compile log, so that cross-check does not run. Table rules are read from the Word borders.
+- If the Word text has no Results heading, the converter says so. Run it again with `--add-results` so that the house rules read the subsections as Results, and report the missing heading as a finding if the venue requires one.
+
 ### Step 1. Run the scripts
 
 ```
@@ -60,7 +81,7 @@ Take the limits and the required statements from `venue.md`. The script runs the
 
 Cross-checks made by `audit.py` itself:
 
-- **Placeholders**: "??", TODO, "[CITE]", filler text, placeholder images, coloured or struck-out text.
+- **Placeholders**: "??", TODO, "[CITE]", filler text, placeholder images, coloured or struck-out text, a statement left ending in an ellipsis ("publicly available via …"), "Fig. X" or "Table X".
 - **Compile log**: undefined references and citations, labels defined twice.
 - **Numbers**: a number in the abstract or the conclusion that the rest of the text does not contain.
 - **Sentences**: more than 30 words in the abstract or the conclusion.
